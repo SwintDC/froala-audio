@@ -27,5 +27,8 @@
 	},
 	"scripts": {
 		"prepublishOnly": "babel src --out-dir ."
+	},
+	"dependencies": {
+		"froala-editor": "^3.1.1"
 	}
 }
