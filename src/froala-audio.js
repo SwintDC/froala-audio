@@ -2,11 +2,11 @@ import * as FroalaEditor from "froala-editor";
 
 (function($, _, FE) {
   'use strict';
-  $.extend(FE.POPUP_TEMPLATES, {
+  Object.assign(FE.POPUP_TEMPLATES, {
     'audio.insert': '[_BUTTONS_][_BY_URL_LAYER_][_UPLOAD_LAYER_][_PROGRESS_BAR_]',
     'audio.edit': '[_BUTTONS_]'
   });
-  $.extend(FE.DEFAULTS, {
+  Object.assign(FE.DEFAULTS, {
     audioAllowedTypes: ['mp3', 'mpeg', 'x-m4a'],
     audioEditButtons: ['audioReplace', 'audioRemove', '|', 'audioAutoplay', 'audioAlign'],
     audioInsertButtons: ['audioBack', '|', 'audioByURL', 'audioUpload'],
@@ -42,30 +42,30 @@ import * as FroalaEditor from "froala-editor";
       currentAudio = null;
     };
 
-    const bindInsertEvents = function($popup) {
+    const bindInsertEvents = function(popup) {
       // Drag over the droppable area.
-      editor.events.$on($popup, 'dragover dragenter', '.fr-audio-upload-layer', function() {
-        $(this).addClass('fr-drop');
+      editor.events.$on(popup, 'dragover dragenter', '.fr-audio-upload-layer', function() {
+        this.classList.add('fr-drop');
         return false;
       }, true);
 
       // Drag end.
-      editor.events.$on($popup, 'dragleave dragend', '.fr-audio-upload-layer', function() {
-        $(this).removeClass('fr-drop');
+      editor.events.$on(popup, 'dragleave dragend', '.fr-audio-upload-layer', function() {
+        this.classList.remove('fr-drop');
         return false;
       }, true);
 
       // Drop.
-      editor.events.$on($popup, 'drop', '.fr-audio-upload-layer', function(e) {
+      editor.events.$on(popup, 'drop', '.fr-audio-upload-layer', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        $(this).removeClass('fr-drop');
+        this.classList.remove('fr-drop');
 
         const dt = e.originalEvent.dataTransfer;
 
         if (dt && dt.files) {
-          const inst = $popup.data('instance') || editor;
+          const inst = popup.data('instance') || editor;
           inst.events.disableBlur();
           inst.audio.upload(dt.files);
           inst.events.enableBlur();
@@ -73,30 +73,30 @@ import * as FroalaEditor from "froala-editor";
       }, true);
 
       if (editor.helpers.isIOS()) {
-        editor.events.$on($popup, 'touchstart', '.fr-audio-upload-layer input[type="file"]', function() {
-          $(this).trigger('click');
+        editor.events.$on(popup, 'touchstart', '.fr-audio-upload-layer input[type="file"]', function() {
+          this.click();
         }, true);
       }
 
-      editor.events.$on($popup, 'change', '.fr-audio-upload-layer input[type="file"]', function() {
+      editor.events.$on(popup, 'change', '.fr-audio-upload-layer input[type="file"]', function() {
         if (this.files) {
-          const inst = $popup.data('instance') || editor;
+          const inst = popup.data('instance') || editor;
           inst.events.disableBlur();
-          $popup.find('input:focus').blur();
+          popup.find('input:focus').blur();
           inst.events.enableBlur();
           inst.audio.upload(this.files);
         }
 
         // Else IE 9 case.
         // Chrome fix.
-        $(this).val('');
+        this.value = '';
       }, true);
     };
 
     const refreshInsertPopup = function() {
-      const $popup = editor.popups.get('audio.insert');
-      const $inputs = $popup.find('input, button');
-      $inputs.prop('disabled', false).val('').trigger('change');
+      const popup = editor.popups.get('audio.insert');
+      const inputs = popup.find('input, button');
+      inputs.removeAttr('disabled').val('').trigger('change');
     };
 
     /* eslint-disable camelcase */
@@ -139,9 +139,9 @@ import * as FroalaEditor from "froala-editor";
                 </div>
             </div>`;
 
-      const $popup = editor.popups.create('audio.insert', {buttons, by_url_layer, upload_layer, progress_bar});
-      bindInsertEvents($popup);
-      return $popup;
+      const popup = editor.popups.create('audio.insert', {buttons, by_url_layer, upload_layer, progress_bar});
+      bindInsertEvents(popup);
+      return popup;
     };
 
     const initEditPopup = function() {
@@ -154,11 +154,11 @@ import * as FroalaEditor from "froala-editor";
     /* eslint-enable camelcase */
 
     const showProgressBar = function(message) {
-      const $popup = editor.popups.get('audio.insert') || initInsertPopup();
+      const popup = editor.popups.get('audio.insert') || initInsertPopup();
 
-      $popup.find('.fr-layer.fr-active').removeClass('fr-active').addClass('fr-pactive');
-      $popup.find('.fr-audio-progress-bar-layer').addClass('fr-active');
-      $popup.find('.fr-buttons').hide();
+      popup.find('.fr-layer.fr-active').removeClass('fr-active').addClass('fr-pactive');
+      popup.find('.fr-audio-progress-bar-layer').addClass('fr-active');
+      popup.find('.fr-buttons').hide();
 
       if (message) showProgressMessage(message, 0);
     };
@@ -166,13 +166,13 @@ import * as FroalaEditor from "froala-editor";
 
     const showErrorMessage = function(message) {
       showProgressBar();
-      const $popup = editor.popups.get('audio.insert');
-      const $layer = $popup.find('.fr-audio-progress-bar-layer');
-      $layer.addClass('fr-error');
-      const $messageHeader = $layer.find('h3');
-      $messageHeader.text(editor.language.translate(message));
+      const popup = editor.popups.get('audio.insert');
+      const layer = popup.find('.fr-audio-progress-bar-layer');
+      layer.addClass('fr-error');
+      const messageHeader = layer.find('h3');
+      messageHeader.text(editor.language.translate(message));
       editor.events.disableBlur();
-      $messageHeader.focus();
+      messageHeader.focus();
     };
 
     const throwError = function(code, response) {
@@ -182,18 +182,18 @@ import * as FroalaEditor from "froala-editor";
     };
 
     const showProgressMessage = function(message, progress) {
-      const $popup = editor.popups.get('audio.insert');
-      if (!$popup) return;
+      const popup = editor.popups.get('audio.insert');
+      if (!popup) return;
 
-      const $layer = $popup.find('.fr-audio-progress-bar-layer');
-      $layer.find('h3').text(editor.language.translate(message) + (progress ? ' ' + progress + '%' : ''));
-      $layer.removeClass('fr-error');
+      const layer = popup.find('.fr-audio-progress-bar-layer');
+      layer.find('h3').text(editor.language.translate(message) + (progress ? ' ' + progress + '%' : ''));
+      layer.removeClass('fr-error');
 
       if (progress) {
-        $layer.find('div').removeClass('fr-indeterminate');
-        $layer.find('div > span').css('width', progress + '%');
+        layer.find('div').removeClass('fr-indeterminate');
+        layer.find('div > span').css('width', progress + '%');
       } else {
-        $layer.find('div').addClass('fr-indeterminate');
+        layer.find('div').addClass('fr-indeterminate');
       }
     };
 
@@ -257,28 +257,28 @@ import * as FroalaEditor from "froala-editor";
       return $audio;
     };
 
-    const replaceAudio = function($audio, src) {
-      const player = $audio.find('audio');
+    const replaceAudio = function(audio, src) {
+      const player = audio.find('audio');
       // If you try to replace it with itself, we clear the src first so that the events still fire.
       if (player.attr('src') === src) player.attr({src: ''});
 
-      $audio.addClass('fr-uploading');
+      audio.addClass('fr-uploading');
       player
         .off('canplaythrough loadeddata')
         .off('error')
         .on('canplaythrough loadeddata', function() {
           editor.popups.hide('audio.insert');
-          $audio.removeClass('fr-uploading');
-          editor.events.trigger('audio.loaded', [$audio]);
-          stopEditing($audio);
+          audio.removeClass('fr-uploading');
+          editor.events.trigger('audio.loaded', [audio]);
+          stopEditing(audio);
         })
         .on('error', function(e) {
-          $audio.addClass('fr-error').removeClass('fr-uploading');
-          editor.audio.showEditPopup($audio);
-          editor.events.trigger('audio.error', [$audio, e]);
+          audio.addClass('fr-error').removeClass('fr-uploading');
+          editor.audio.showEditPopup(audio);
+          editor.events.trigger('audio.error', [audio, e]);
         })
         .attr({src});
-      return $audio;
+      return audio;
     };
 
     const insertHtmlAudio = function(link, response) {
@@ -380,24 +380,30 @@ import * as FroalaEditor from "froala-editor";
         editor.popups.show($popup, left + $player.outerWidth() / 2, top + height, height);
       },
 
-      refreshByURLButton($btn) {
-        const $popup = editor.popups.get('audio.insert');
-        if ($popup.find('.fr-audio-by-url-layer').hasClass('fr-active')) {
-          $btn.addClass('fr-active').attr('aria-pressed', true);
+      refreshByURLButton(btn) {
+        const popup = editor.popups.get('audio.insert');
+
+        if (popup.find('.fr-audio-by-url-layer').hasClass('fr-active')) {
+          btn.addClass('fr-active').attr('aria-pressed', true);
         }
       },
-      refreshUploadButton($btn) {
-        const $popup = editor.popups.get('audio.insert');
-        if ($popup.find('.fr-audio-upload-layer').hasClass('fr-active')) {
-          $btn.addClass('fr-active').attr('aria-pressed', true);
+      refreshUploadButton(btn) {
+        const popup = editor.popups.get('audio.insert');
+
+        if (popup.find('.fr-audio-upload-layer').hasClass('fr-active')) {
+          btn.addClass('fr-active').attr('aria-pressed', true);
         }
       },
 
       autoplay() {
         if (!currentAudio) return false;
-        const $player = currentAudio.find('audio');
-        const isAuto = $player.prop('autoplay');
-        $player.prop({autoplay: !isAuto});
+        const player = currentAudio.find('audio');
+        const isAuto = player.attr('autoplay');
+        if (!!isAuto) {
+          player.removeAttr('autoplay');
+        } else {
+          player.attr('autoplay', true);
+        }
       },
       align(val) {
         if (!currentAudio) return false;
@@ -411,7 +417,7 @@ import * as FroalaEditor from "froala-editor";
 
       refreshAutoplayButton($btn) {
         if (!currentAudio) return false;
-        const isAuto = currentAudio.find('audio').prop('autoplay');
+        const isAuto = currentAudio.find('audio').attr('autoplay');
         $btn.toggleClass('fr-active', isAuto).attr('aria-pressed', isAuto);
       },
       refreshAlignButton($btn) {
@@ -438,14 +444,14 @@ import * as FroalaEditor from "froala-editor";
           editor.toolbar.showInline();
         }
       },
-      refreshBackButton($btn) {
+      refreshBackButton(btn) {
         const showBack = currentAudio || editor.opts.toolbarInline;
-        $btn.toggleClass('fr-hidden', !showBack);
-        $btn.next('.fr-separator').toggleClass('fr-hidden', !showBack);
+        btn.toggleClass('fr-hidden', !showBack);
+        btn.next('.fr-separator').toggleClass('fr-hidden', !showBack);
       },
 
       showLayer(name) {
-        const $popup = editor.popups.get('audio.insert');
+        const popup = editor.popups.get('audio.insert');
         editor.popups.setContainer('audio.insert', currentAudio ? editor.$sc : editor.$tb);
 
         let left, top, height = 0;
@@ -458,10 +464,10 @@ import * as FroalaEditor from "froala-editor";
           top = offset.top + height;
         } else if (editor.opts.toolbarInline) {
           // Set top to the popup top.
-          top = $popup.offset().top - editor.helpers.getPX($popup.css('margin-top'));
+          top = popup.offset().top - editor.helpers.getPX(popup.css('margin-top'));
 
           // If the popup is above apply height correction.
-          if ($popup.hasClass('fr-above')) top += $popup.outerHeight();
+          if (popup.hasClass('fr-above')) top += popup.outerHeight();
         } else {
           const $btn = editor.$tb.find('.fr-command[data-cmd="insertAudio"]');
           const offset = $btn.offset();
@@ -470,20 +476,20 @@ import * as FroalaEditor from "froala-editor";
         }
 
         // Show the new layer.
-        $popup.find('.fr-layer').removeClass('fr-active');
-        $popup.find('.fr-' + name + '-layer').addClass('fr-active');
+        popup.find('.fr-layer').removeClass('fr-active');
+        popup.find('.fr-' + name + '-layer').addClass('fr-active');
         editor.popups.show('audio.insert', left, top, height);
-        editor.accessibility.focusPopup($popup);
+        editor.accessibility.focusPopup(popup);
         editor.popups.refresh('audio.insert');
       },
 
       hideProgressBar(dismiss) {
-        const $popup = editor.popups.get('audio.insert');
-        if (!$popup) return;
+        const popup = editor.popups.get('audio.insert');
+        if (!popup) return;
 
-        $popup.find('.fr-layer.fr-pactive').addClass('fr-active').removeClass('fr-pactive');
-        $popup.find('.fr-audio-progress-bar-layer').removeClass('fr-active');
-        $popup.find('.fr-buttons').show();
+        popup.find('.fr-layer.fr-pactive').addClass('fr-active').removeClass('fr-pactive');
+        popup.find('.fr-audio-progress-bar-layer').removeClass('fr-active');
+        popup.find('.fr-buttons').show();
 
         // Dismiss error message.
         const audios = editor.$el.find('audio.fr-error');
@@ -503,9 +509,9 @@ import * as FroalaEditor from "froala-editor";
 
       insertByURL(link) {
         if (!link) {
-          const $popup = editor.popups.get('audio.insert');
-          link = ($popup.find('.fr-audio-by-url-layer input[type="text"]').val() || '').trim();
-          $popup.find('input, button').prop({disabled: true});
+          const popup = editor.popups.get('audio.insert');
+          link = (popup.find('.fr-audio-by-url-layer input[type="text"]').val() || '').trim();
+          popup.find('input, button').attr('disabled', true);
         }
 
         if (!/^http/.test(link)) link = 'https://' + link;
@@ -575,9 +581,10 @@ import * as FroalaEditor from "froala-editor";
         editor.edit.off();
         editor.events.enableBlur();
 
-        const $popup = editor.popups.get('audio.insert');
-        if ($popup) {
-          $popup.off('abortUpload').on('abortUpload', function() {
+        const popup = editor.popups.get('audio.insert');
+        if (popup) {
+          popup.off('abortUpload');
+          popup.on('abortUpload', function() {
             if (xhr.readyState !== 4) xhr.abort();
           });
         }
@@ -594,23 +601,23 @@ import * as FroalaEditor from "froala-editor";
 
       remove() {
         if (!currentAudio) return;
-        const $audio = currentAudio;
-        if (editor.events.trigger('audio.beforeRemove', [$audio]) === false) return;
+        const audio = currentAudio;
+        if (editor.events.trigger('audio.beforeRemove', [audio]) === false) return;
         editor.popups.hideAll();
 
-        const el = $audio[0];
+        const el = audio[0];
         editor.selection.setBefore(el) || editor.selection.setAfter(el);
-        $audio.remove();
+        audio.remove();
         editor.selection.restore();
 
         editor.html.fillEmptyBlocks();
-        editor.events.trigger('audio.removed', [$audio]);
-        stopEditing($audio);
+        editor.events.trigger('audio.removed', [audio]);
+        stopEditing(audio);
       }
     };
   };
 
-  FE.DefineIcon('insertAudio', {NAME: 'volume-up'});
+  FE.DefineIcon('insertAudio', {NAME: 'volume-up', template: 'font_awesome'});
   FE.RegisterCommand('insertAudio', {
     title: 'Insert Audio',
     undo: false,
@@ -628,7 +635,7 @@ import * as FroalaEditor from "froala-editor";
     plugin: 'audio'
   });
 
-  FE.DefineIcon('audioByURL', {NAME: 'link'});
+  FE.DefineIcon('audioByURL', {NAME: 'link', template: 'font_awesome'});
   FE.RegisterCommand('audioByURL', {
     title: 'By URL',
     undo: false,
@@ -642,7 +649,7 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioUpload', {NAME: 'upload'});
+  FE.DefineIcon('audioUpload', {NAME: 'upload', template: 'font_awesome'});
   FE.RegisterCommand('audioUpload', {
     title: 'Upload Audio',
     undo: false,
@@ -672,12 +679,12 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioAlignLeft', { NAME: 'align-left' });
-  FE.DefineIcon('audioAlignRight', { NAME: 'align-right' });
+  FE.DefineIcon('audioAlignLeft', { NAME: 'align-left', template: 'font_awesome' });
+  FE.DefineIcon('audioAlignRight', { NAME: 'align-right', template: 'font_awesome' });
   // For consistency with the video plugin, we use the align-justify icon for alignCenter. :(
-  FE.DefineIcon('audioAlignCenter', { NAME: 'align-justify' });
+  FE.DefineIcon('audioAlignCenter', { NAME: 'align-justify', template: 'font_awesome' });
 
-  FE.DefineIcon('audioAlign', { NAME: 'align-center' });
+  FE.DefineIcon('audioAlign', { NAME: 'align-center', template: 'font_awesome' });
   FE.RegisterCommand('audioAlign', {
     type: 'dropdown',
     title: 'Align',
@@ -710,7 +717,7 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioAutoplay', {NAME: 'play-circle'});
+  FE.DefineIcon('audioAutoplay', {NAME: 'play-circle', template: 'font_awesome'});
   FE.RegisterCommand('audioAutoplay', {
     title: 'Autoplay',
     toggle: true,
@@ -722,7 +729,7 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioReplace', {NAME: 'exchange'});
+  FE.DefineIcon('audioReplace', {NAME: 'exchange', template: 'font_awesome'});
   FE.RegisterCommand('audioReplace', {
     title: 'Replace',
     undo: false,
@@ -734,7 +741,7 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioRemove', {NAME: 'trash'});
+  FE.DefineIcon('audioRemove', {NAME: 'trash', template: 'font_awesome'});
   FE.RegisterCommand('audioRemove', {
     title: 'Remove',
     callback() {
@@ -742,7 +749,7 @@ import * as FroalaEditor from "froala-editor";
     }
   });
 
-  FE.DefineIcon('audioBack', { NAME: 'arrow-left' });
+  FE.DefineIcon('audioBack', { NAME: 'arrow-left', template: 'font_awesome' });
   FE.RegisterCommand('audioBack', {
     title: 'Back',
     undo: false,
