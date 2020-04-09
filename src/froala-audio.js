@@ -420,11 +420,15 @@ import * as FroalaEditor from "froala-editor";
         const isAuto = currentAudio.find('audio').attr('autoplay');
         $btn.toggleClass('fr-active', isAuto).attr('aria-pressed', isAuto);
       },
-      refreshAlignButton($btn) {
+      refreshAlignButton(btn) {
         if (!currentAudio) return false;
         const align = currentAudio.css('textAlign') || 'center';
-        // This is copied from how the video plugin does it. Yes, it's gross.
-        $btn.children(':first').replaceWith(editor.icon.create('audioAlign' + _.capitalize(align)));
+        const btnChildren = btn.children();
+        if (btnChildren.length > 0) {
+          var wrapper= document.createElement('div');
+          wrapper.innerHTML= editor.icon.create('audioAlign' + _.capitalize(align));
+          btnChildren[0].replaceWith(wrapper.firstChild);
+        }
       },
       refreshAlignDropdown($btn, $dropdown) {
         if (!currentAudio) return;
