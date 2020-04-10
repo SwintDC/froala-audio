@@ -1,12 +1,17 @@
-# froala-audio [![npm](https://img.shields.io/npm/v/froala-audio.svg)](https://www.npmjs.com/package/froala-audio) [![license](https://img.shields.io/npm/l/froala-audio.svg)](LICENSE.md)
+# froala3-audio [![npm](https://img.shields.io/npm/v/froala-audio.svg)](https://www.npmjs.com/package/froala-audio) [![license](https://img.shields.io/npm/l/froala-audio.svg)](LICENSE.md)
 
 A simple plugin for [Froala WYSIWYG Editor](https://www.froala.com/wysiwyg-editor/) that allows users to insert and customise audio players in the editor.
+
+## Example
+
+jsfiddle: https://jsfiddle.net/epd7zu0v/17/
 
 ## Prerequisites
 
 The following libraries must be available for this plugin to function correctly:
 
 * Froala Editor >= 2.0.0 (developed under 2.7.5)
+* jQuery
 
 ## Installing
 
