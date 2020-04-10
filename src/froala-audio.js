@@ -543,7 +543,7 @@ function capitalize(str) {
 
         const formData = new FormData();
         if (!!editor.opts.audioUploadParams) {
-          editor.opts.audioUploadParams.forEach((key, value) => formData.append(key, value));
+          Object.entries(editor.opts.audioUploadParams).forEach(([key, value]) => formData.append(key, value));
         }
         formData.append(editor.opts.audioUploadParam, audio);
 
