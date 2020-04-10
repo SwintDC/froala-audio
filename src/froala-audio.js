@@ -1,6 +1,10 @@
 import * as FroalaEditor from "froala-editor";
 
-(function($, _, FE) {
+function capitalize(str) {
+  return `${str.charAt(0).toUpperCase()}${str.slice(1).toLowerCase()}`;
+} 
+
+(function($, FE) {
   'use strict';
   Object.assign(FE.POPUP_TEMPLATES, {
     'audio.insert': '[_BUTTONS_][_BY_URL_LAYER_][_UPLOAD_LAYER_][_PROGRESS_BAR_]',
@@ -105,7 +109,7 @@ import * as FroalaEditor from "froala-editor";
       editor.popups.onHide('audio.insert', editor.audio.hideProgressBar);
 
       let buttonSpec = editor.opts.audioInsertButtons;
-      if (!editor.opts.audioUpload) buttonSpec = _.omit(buttonSpec, 'audioUpload');
+      if (!editor.opts.audioUpload) buttonSpec = buttonSpec.filter((x) => x !== 'audioUpload');
       const buttons = buttonSpec.length < 2 ? '' : `<div class="fr-buttons">
                 ${editor.button.buildList(buttonSpec)}
             </div>`;
@@ -251,7 +255,7 @@ import * as FroalaEditor from "froala-editor";
           $audio.addClass('fr-error').removeClass('fr-uploading');
           editor.events.trigger('audio.error', [$audio, e]);
         })
-        .attr(_.mapKeys(data, (v, k) => 'data-' + _.kebabCase(k)))
+        .attr(Object.entries(data).reduce((acc, [key, value]) => ({ ...acc, ['data-' + key.toLowerCase()]: value }), {}))
         .attr({src});
 
       return $audio;
@@ -426,7 +430,7 @@ import * as FroalaEditor from "froala-editor";
         const btnChildren = btn.children();
         if (btnChildren.length > 0) {
           var wrapper= document.createElement('div');
-          wrapper.innerHTML= editor.icon.create('audioAlign' + _.capitalize(align));
+          wrapper.innerHTML= editor.icon.create('audioAlign' + capitalize(align));
           btnChildren[0].replaceWith(wrapper.firstChild);
         }
       },
@@ -530,7 +534,7 @@ import * as FroalaEditor from "froala-editor";
 
         const audio = audios[0];
 
-        if (!_.includes(editor.opts.audioAllowedTypes, audio.type.replace(/audio\//g, ''))) {
+        if (!editor.opts.audioAllowedTypes || !editor.opts.audioAllowedTypes.includes(audio.type.replace(/audio\//g, ''))) {
           throwError(BAD_FILE_TYPE);
           return false;
         }
@@ -538,7 +542,9 @@ import * as FroalaEditor from "froala-editor";
         if (!editor.drag_support.formdata) return false;
 
         const formData = new FormData();
-        _.each(editor.opts.audioUploadParams, (key, value) => formData.append(key, value));
+        if (!!editor.opts.audioUploadParams) {
+          editor.opts.audioUploadParams.forEach((key, value) => formData.append(key, value));
+        }
         formData.append(editor.opts.audioUploadParam, audio);
 
         const url = editor.opts.audioUploadURL;
@@ -698,16 +704,16 @@ import * as FroalaEditor from "froala-editor";
       right: 'Align Right'
     },
     html() {
-      const mkOption = (label, val) => `<li role="presentation">
+      const mkOption = ([val, label]) => `<li role="presentation">
                 <a class="fr-command fr-title" tabIndex="-1" role="option" data-cmd="audioAlign"
                    data-param1="${val}" title="${this.language.translate(label)}">
-                    ${this.icon.create('audioAlign' + _.capitalize(val))}
+                    ${this.icon.create('audioAlign' + capitalize(val))}
                     <span class="fr-sr-only">${this.language.translate(label)}</span>
                 </a>
             </li>`;
 
       return `<ul class="fr-dropdown-list" role="presentation">
-                ${_.map(FE.COMMANDS.audioAlign.options, mkOption).join('\n')}
+                ${Object.entries(FE.COMMANDS.audioAlign.options).map(mkOption).join('\n')}
             </ul>`;
     },
     callback(cmd, val) {
@@ -778,4 +784,4 @@ import * as FroalaEditor from "froala-editor";
       if (src) this.audio.insertByURL(src);
     }
   });
-})(window.jQuery, window._, FroalaEditor);
+})(window.jQuery, FroalaEditor);

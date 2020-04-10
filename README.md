@@ -7,7 +7,6 @@ A simple plugin for [Froala WYSIWYG Editor](https://www.froala.com/wysiwyg-edito
 The following libraries must be available for this plugin to function correctly:
 
 * Froala Editor >= 2.0.0 (developed under 2.7.5)
-* Lodash >= 3.0.0, including Lodash 4 (developed under 3.10.1)
 
 ## Installing
 
