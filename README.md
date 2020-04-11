@@ -10,7 +10,7 @@ jsfiddle: https://jsfiddle.net/epd7zu0v/17/
 
 The following libraries must be available for this plugin to function correctly:
 
-* Froala Editor >= 2.0.0 (developed under 2.7.5)
+* Froala Editor >= 3.0.0 (developed under 3.1.0)
 * jQuery
 
 ## Installing
