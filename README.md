@@ -4,7 +4,7 @@ A simple plugin for [Froala WYSIWYG Editor](https://www.froala.com/wysiwyg-edito
 
 ## Example
 
-jsfiddle: https://jsfiddle.net/epd7zu0v/17/
+jsfiddle: https://jsfiddle.net/va95zoep/1/
 
 ## Prerequisites
 
